@@ -30,7 +30,6 @@ export default function Home() {
         throw new Error("Ứng dụng chưa đọc được mã Blockfrost API Key. Bạn hãy kiểm tra lại file .env.local và KHỞI ĐỘNG LẠI terminal nhé!");
       }
 
-      // ✅ FIX 1: Đã chuyển BlockfrostProvider vào bên trong hàm an toàn
       const blockfrostProvider = new BlockfrostProvider(
         process.env.NEXT_PUBLIC_BLOCKFROST_API_KEY
       );
@@ -43,14 +42,17 @@ export default function Home() {
         data: mockAIData
       });
 
-      // ✅ FIX 2: Nâng cấp thuật toán lấy địa chỉ an toàn tuyệt đối
-      const unusedAddresses = await wallet.getUnusedAddresses();
-      const usedAddresses = await wallet.getUsedAddresses();
-      const myAddress = unusedAddresses[0] || usedAddresses[0];
+      // ✅ FIX: Sử dụng getChangeAddress chuẩn và chặn lỗi Stale State
+      let myAddress;
+      try {
+        myAddress = await wallet.getChangeAddress();
+      } catch (e) {
+        myAddress = null;
+      }
 
-      // Chặn lỗi văng màn hình đỏ nếu ví Eternl đang bận đồng bộ
+      // Chặn ngay lập tức nếu dữ liệu ví trên web vẫn là đồ cũ
       if (!myAddress) {
-        throw new Error("Không trích xuất được địa chỉ! Vui lòng mở ví Eternl, đợi ví đồng bộ xong (hết xoay vòng tròn) rồi ấn gửi lại.");
+        throw new Error("Trang web chưa cập nhật kịp dữ liệu mới từ ví. Bạn hãy làm theo đúng 3 bước: 1. Ấn nút Ngắt kết nối -> 2. Ấn F5 tải lại trang -> 3. Kết nối lại ví.");
       }
 
       tx.sendLovelace(myAddress, "1000000"); 
@@ -62,7 +64,7 @@ export default function Home() {
       setTxHash(hash);
     } catch (error: any) {
       console.error("Lỗi chi tiết từ hệ thống:", error);
-      alert(`Giao dịch thất bại! Chi tiết lỗi: ${error?.message || JSON.stringify(error)}`);
+      alert(`Giao dịch thất bại! Chi tiết: ${error?.message || JSON.stringify(error)}`);
     } finally {
       setLoading(false);
     }
