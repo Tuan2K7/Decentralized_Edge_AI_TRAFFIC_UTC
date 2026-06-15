@@ -5,20 +5,14 @@ import { useWallet } from '@meshsdk/react';
 import { Transaction, BlockfrostProvider } from '@meshsdk/core';
 
 export default function Home() {
-  // Trích xuất các thuộc tính tự chế nút bấm từ useWallet
   const { wallet, connected, connecting, connect, disconnect, name } = useWallet();
   const [txHash, setTxHash] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
-  // Đảm bảo giao diện chỉ render sau khi đã tải xong trên trình duyệt (Chống lỗi Hydration 100%)
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const blockfrostProvider = new BlockfrostProvider(
-    process.env.NEXT_PUBLIC_BLOCKFROST_API_KEY as string
-  );
 
   const mockAIData = {
     lat: "21.0285",
@@ -27,15 +21,19 @@ export default function Home() {
     confidence: 92
   };
 
-const handlePushToCardano = async () => {
+  const handlePushToCardano = async () => {
     if (!connected) return;
     setLoading(true);
 
     try {
-      // 1. Kiểm tra xem Next.js đã nạp được API Key từ .env.local chưa
       if (!process.env.NEXT_PUBLIC_BLOCKFROST_API_KEY) {
         throw new Error("Ứng dụng chưa đọc được mã Blockfrost API Key. Bạn hãy kiểm tra lại file .env.local và KHỞI ĐỘNG LẠI terminal nhé!");
       }
+
+      // ✅ FIX 1: Đã chuyển BlockfrostProvider vào bên trong hàm an toàn
+      const blockfrostProvider = new BlockfrostProvider(
+        process.env.NEXT_PUBLIC_BLOCKFROST_API_KEY
+      );
 
       const tx = new Transaction({ initiator: wallet as any });
 
@@ -45,8 +43,16 @@ const handlePushToCardano = async () => {
         data: mockAIData
       });
 
-      // Lấy địa chỉ ví của bạn để tự gửi lại 1 ADA cho chính mình
-      const myAddress = await wallet.getChangeAddress();
+      // ✅ FIX 2: Nâng cấp thuật toán lấy địa chỉ an toàn tuyệt đối
+      const unusedAddresses = await wallet.getUnusedAddresses();
+      const usedAddresses = await wallet.getUsedAddresses();
+      const myAddress = unusedAddresses[0] || usedAddresses[0];
+
+      // Chặn lỗi văng màn hình đỏ nếu ví Eternl đang bận đồng bộ
+      if (!myAddress) {
+        throw new Error("Không trích xuất được địa chỉ! Vui lòng mở ví Eternl, đợi ví đồng bộ xong (hết xoay vòng tròn) rồi ấn gửi lại.");
+      }
+
       tx.sendLovelace(myAddress, "1000000"); 
 
       const unsignedTx = await tx.build();
@@ -56,13 +62,12 @@ const handlePushToCardano = async () => {
       setTxHash(hash);
     } catch (error: any) {
       console.error("Lỗi chi tiết từ hệ thống:", error);
-      // Hiển thị trực tiếp thông báo lỗi gốc để biết nguyên nhân cụ thể
       alert(`Giao dịch thất bại! Chi tiết lỗi: ${error?.message || JSON.stringify(error)}`);
     } finally {
       setLoading(false);
     }
   };
-  // Nếu chưa tải xong trên client thì tạm thời chưa hiện UI để tránh lệch cấu trúc HTML
+
   if (!isMounted) return null;
 
   return (
@@ -72,7 +77,6 @@ const handlePushToCardano = async () => {
           Decentralized Edge-AI Traffic Grid (Demo)
         </h1>
         
-        {/* KHU VỰC NÚT KẾT NỐI VÍ TỰ THIẾT KẾ */}
         <div className="mt-4 lg:mt-0">
           {connected ? (
             <div className="flex items-center gap-3">
@@ -88,7 +92,7 @@ const handlePushToCardano = async () => {
             </div>
           ) : (
             <button
-              onClick={() => connect('eternl')} // Gọi trực tiếp lệnh kích hoạt ví Eternl
+              onClick={() => connect('eternl')}
               disabled={connecting}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-2 rounded-lg font-medium shadow-md transition-all disabled:bg-gray-400"
             >
