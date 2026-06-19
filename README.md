@@ -1,194 +1,100 @@
-# 🚗 Decentralized Edge-AI Traffic Grid
-**Hệ thống giám sát hạ tầng giao thông phi tập trung — AI + Blockchain**
+# 🚦 Decentralized Edge-AI Traffic Grid
+
+[![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![Cardano](https://img.shields.io/badge/Cardano-Preprod-blue?style=flat&logo=cardano)](https://cardano.org/)
+[![MeshSDK](https://img.shields.io/badge/MeshSDK-Web3-purple?style=flat)](https://meshjs.dev/)
+[![YOLOv8](https://img.shields.io/badge/AI-YOLOv8-yellow?style=flat)](#)
+[![UTC](https://img.shields.io/badge/UTC-CNTT_VA2_K66-red?style=flat)](#)
+
+**Mạng lưới AI Giao thông Tự chữa lành** - Ứng dụng công nghệ Edge-AI và Blockchain Cardano để xây dựng hệ thống giám sát hạ tầng giao thông phi tập trung, minh bạch và theo thời gian thực.
 
 ---
 
-## 🏗 Kiến trúc tổng thể
+## 📖 Giới thiệu Dự án
 
-```
-[Camera/Video]
-     │
-     ▼
-┌──────────────────────────────────┐
-│  MODULE 1: Python AI (YOLOv8)   │  ← thư mục: python_ai/
-│  - Phát hiện ổ gà               │
-│  - Trích xuất GPS               │
-│  - Gửi HTTP POST → Next.js      │
-└──────────────┬───────────────────┘
-               │ JSON qua HTTP POST
-               ▼
-┌──────────────────────────────────┐
-│  MODULE 2: Next.js Dashboard    │  ← thư mục: nextjs_dashboard/
-│  - API /api/sensor nhận data    │
-│  - Bản đồ Leaflet hiển thị      │
-│  - Polling cập nhật real-time   │
-└──────────────┬───────────────────┘
-               │ User bấm nút "Xác thực"
-               ▼
-┌──────────────────────────────────┐
-│  MODULE 3: Blockchain (MeshSDK) │  ← tích hợp trong Dashboard
-│  - Ví Eternl ký giao dịch       │
-│  - Metadata CIP-20 lên Cardano  │
-│  - TxHash lưu vĩnh viễn         │
-└──────────────────────────────────┘
-```
+Hiện nay, các hệ thống báo cáo sự cố hạ tầng giao thông (như ổ gà, ngập nước, nắp cống hỏng) thường có độ trễ lớn và phụ thuộc vào báo cáo thủ công của người dân. 
+
+**Decentralized Edge-AI Traffic Grid** biến các phương tiện tham gia giao thông thành một mạng lưới "mắt thần" phi tập trung:
+- 📷 **Edge AI (Off-chain):** Sử dụng Camera hành trình (chạy YOLOv8) và Cảm biến gia tốc smartphone để tự động phát hiện sự cố trực tiếp trên thiết bị (Zero-video-transmission), bảo vệ 100% quyền riêng tư của người lái xe.
+- 🔗 **Blockchain (On-chain):** Đóng dấu tọa độ sự cố lên sổ cái Cardano (Preprod Testnet) thông qua cơ chế Native Metadata của kiến trúc eUTXO. Dữ liệu trở thành bằng chứng bất biến (Proof of Event) không thể cạo sửa, phục vụ cho việc giải ngân quỹ bảo trì đường bộ minh bạch.
 
 ---
 
-## 🚀 HƯỚNG DẪN CHẠY (đọc kỹ thứ tự!)
+## ✨ Tính năng cốt lõi
 
-### Yêu cầu
-- Python 3.10+
-- Node.js 18+
-- Ví **Eternl** đã cài trên Chrome (nạp tADA từ faucet Cardano Preprod)
+- **Nhận diện Tức thời (Real-time Detection):** Giao tiếp qua API nội bộ giữa module Python (AI) và Next.js (Web).
+- **Ví Web3 Tích hợp:** Kết nối mượt mà với ví Eternl thông qua `@meshsdk/core`.
+- **Đóng dấu Metadata (CIP-20):** Ghi nhận tọa độ, loại sự cố và độ tin cậy của AI trực tiếp vào chuỗi khối Cardano.
+- **Bản đồ Cảnh báo:** Trực quan hóa các điểm kẹt/ổ gà theo thời gian thực.
+- **Zero-Cost Hardware:** Tận dụng thiết bị sẵn có của tài xế, không cần lắp đặt camera cố định đắt đỏ.
 
 ---
 
-### BƯỚC 1: Chạy Dashboard (Module 2 + 3)
+## 🛠 Công nghệ sử dụng
+
+### Frontend (DApp)
+- **Framework:** Next.js (React), TypeScript
+- **Styling:** Tailwind CSS
+- **Web3 Integration:** Mesh SDK (`@meshsdk/react`, `@meshsdk/core`)
+
+### Blockchain Infrastructure
+- **Network:** Cardano (Preprod Testnet)
+- **API Provider:** Blockfrost
+- **Wallet Support:** Eternl
+
+### AI & IoT Node (Module rời)
+- **Computer Vision:** YOLOv8 (Python)
+- **Data Transfer:** RESTful API
+
+---
+
+## 🚀 Hướng dẫn Cài đặt & Chạy Local
+
+Do yêu cầu bảo mật mã nguồn mở, khi clone repository về, dự án sẽ không bao gồm thư mục `node_modules` và file `.env.local`. Vui lòng thực hiện các bước sau để khởi chạy:
+
+### Yêu cầu hệ thống
+- Node.js (phiên bản 18.x trở lên)
+- Tiện ích ví [Eternl](https://chrome.google.com/webstore/detail/eternl/kmhcihpebfmpgmihbkipmjlmmioamjva) đã cài đặt trên trình duyệt và chuyển sang mạng **Preprod Testnet**.
+- Ví Eternl cần có sẵn tADA. (Nhận tADA miễn phí tại [Cardano Faucet](https://docs.cardano.org/cardano-testnets/tools/faucet/)).
+
+### Bước 1: Cài đặt thư viện
+Clone repository về máy và cài đặt các gói phụ thuộc:
 
 ```bash
-cd nextjs_dashboard
+git clone https://github.com/TENTAIKHOANCUABAN/Decentralized_Edge_AI_TRAFFIC_UTC.git
+cd Decentralized_Edge_AI_TRAFFIC_UTC/my-dapp
 npm install
+```
+
+### Bước 2: Cấu hình Biến môi trường
+Tạo một file mới có tên .env.local ở thư mục gốc (ngang hàng với file package.json) và thêm Blockfrost API Key của bạn vào:
+
+```bash
+NEXT_PUBLIC_BLOCKFROST_API_KEY=preprod_YOUR_API_KEY_HERE
+```
+
+### Bước 3: Khởi chạy Dự án
+```bash
 npm run dev
 ```
 
-Mở trình duyệt: **http://localhost:3000**
+💡 Hướng dẫn Sử dụng (Demo)
+1.Mở tiện ích ví Eternl: Bật Single Address Mode và thiết lập Collateral (Tài sản thế chấp).
+2.Trên giao diện DApp, bấm nút Kết nối ví Eternl.
+2.Hệ thống Edge-AI phát hiện ổ gà và hiển thị tọa độ JSON.
+3.Bấm Xác thực & Lưu lên Blockchain và ký giao dịch bằng mật khẩu ví.
+4.Kiểm tra mã giao dịch (TxHash) trực tiếp trên CardanoScan!
 
-Giao diện hiển thị bản đồ Hà Nội với thông báo *"Đang chờ dữ liệu AI..."*.
+👥 Thành viên Phát triển
+Dự án được thực hiện bởi sinh viên lớp CNTT VA2 K66 - Trường Đại học Giao thông Vận tải (UTC).
 
-Bấm **"Kết nối ví Eternl"** để chuẩn bị sẵn ví trước.
+Nguyễn Anh Tuấn (Trưởng nhóm / Lead Developer)
 
----
+Hoàng Nhất Nam
 
-### BƯỚC 2: Chạy AI Detection (Module 1)
+Phạm Tuấn Kiệt
 
-#### Option A — Chế độ giả lập (không cần camera, dùng để demo nhanh)
-```bash
-cd python_ai
-pip install -r requirements.txt
-python detect_and_send.py --demo
-```
-→ Gửi 5 sự kiện mẫu lên Dashboard, quan sát chấm đỏ xuất hiện trên bản đồ.
+Cao Việt Cường
 
-#### Option B — File video thực
-```bash
-# Đặt file video vào python_ai/sources/ (cùng file .gpx nếu có)
-cd python_ai
-python detect_and_send.py
-```
+Đinh Đức Vương
 
-#### Option C — Webcam (IP Webcam hoặc webcam laptop)
-```bash
-cd python_ai
-python detect_and_send.py --webcam
-```
-
----
-
-### BƯỚC 3: Xác thực lên Blockchain
-
-1. Trên Dashboard, chấm đỏ xuất hiện khi AI phát hiện ổ gà.
-2. Bấm vào chấm hoặc card trong sidebar để xem chi tiết.
-3. Bấm **"⚡ Xác thực & Đóng dấu Blockchain"**.
-4. Ví Eternl bật lên → nhập mật khẩu → xác nhận.
-5. **TxHash** xuất hiện → có thể xem trên [Cardano Preprod Explorer](https://preprod.cardanoscan.io).
-
----
-
-## 📁 Cấu trúc thư mục
-
-```
-DecentralizedTrafficGrid/
-├── python_ai/                    ← Module 1 (Python)
-│   ├── detect_and_send.py        ★ File chạy chính
-│   ├── requirements.txt
-│   ├── weights/
-│   │   └── best.pt              ← Đặt model YOLOv8 tại đây
-│   ├── sources/                 ← Đặt file .mp4 và .gpx tại đây
-│   ├── logs/                    ← Tự động lưu JSON sự kiện
-│   └── modules/
-│       └── gps_processor.py
-│
-└── nextjs_dashboard/             ← Module 2 + 3 (Next.js)
-    ├── src/
-    │   ├── app/
-    │   │   ├── page.tsx          ★ Dashboard + Blockchain UI
-    │   │   ├── layout.tsx
-    │   │   ├── globals.css
-    │   │   └── api/
-    │   │       ├── sensor/       ← Nhận POST từ Python AI
-    │   │       │   └── route.ts  
-    │   │       └── blockchain-status/
-    │   │           └── route.ts  ← Cập nhật TxHash
-    │   └── components/
-    │       ├── MapComponent.tsx  ← Bản đồ Leaflet
-    │       └── MeshProviderWrapper.tsx
-    ├── package.json
-    ├── next.config.ts
-    └── tsconfig.json
-```
-
----
-
-## 🔧 Cấu hình
-
-### Thay đổi URL Dashboard (nếu không chạy localhost)
-Trong `python_ai/detect_and_send.py`, sửa dòng:
-```python
-DASHBOARD_API = "http://localhost:3000/api/sensor"
-```
-
-### Thay đổi toạ độ GPS mặc định
-```python
-DEFAULT_LAT = 21.0285  # Vĩ độ
-DEFAULT_LNG = 105.8048 # Kinh độ
-```
-
-### Weights YOLOv8 tuỳ chỉnh
-Đặt file `.pt` vào `python_ai/weights/best.pt`.
-Nếu không có, hệ thống tự tải `yolov8n.pt` (model mặc định).
-
----
-
-## 📊 Luồng dữ liệu chi tiết
-
-```
-Python detect_and_send.py
-  │
-  │ requests.post("http://localhost:3000/api/sensor", json={
-  │   "lat": "21.0285",
-  │   "lng": "105.8048",
-  │   "type": "O_GA_NGUY_HIEM",
-  │   "confidence": "96.5%",
-  │   "timestamp": "14:32:05 15/06/2026",
-  │   "device_id": "cam_001"
-  │ })
-  │
-  ▼
-Next.js /api/sensor/route.ts
-  → Lưu vào global.sensorEvents[]
-  
-Frontend page.tsx
-  → setInterval polling GET /api/sensor mỗi 2 giây
-  → Hiển thị chấm trên bản đồ + card trong sidebar
-  
-User bấm "Xác thực"
-  → MeshSDK tạo Transaction
-  → tx.setMetadata(2026, { data: event })
-  → Eternl wallet ký
-  → Submit lên Cardano Preprod
-  → POST /api/blockchain-status { event_id, tx_hash }
-  → Sự kiện được đánh dấu verified ✅
-```
-
----
-
-## 🌐 Links hữu ích
-- Cardano Preprod Explorer: https://preprod.cardanoscan.io
-- Cardano Preprod Faucet: https://docs.cardano.org/cardano-testnets/tools/faucet
-- MeshSDK Docs: https://meshjs.dev
-- YOLOv8 Docs: https://docs.ultralytics.com
-
----
-
-*© 2026 Nhóm Nghiên Cứu AI & Blockchain — Trường Đại học Giao thông Vận tải (UTC)*
